@@ -43,16 +43,6 @@ class StatusHTTPRequestHandler(SimpleHTTPRequestHandler, object):
     _applogger = None
     _node_status = None
 
-    def get_node_status(self):
-        """Get node status object
-
-        This will return the NodeStatus object for this object
-        """
-        if self._node_status is None:
-            states = plconfig.get_config()['states']
-            self._node_status = NodeStatus(states)
-        return self._node_status
-
     def get_web_logger(self):
         """Get web logger
 
@@ -84,13 +74,12 @@ class StatusHTTPRequestHandler(SimpleHTTPRequestHandler, object):
         This returns the status of the node based on what the NodeStatus object
         returns.
         """
-        status = self.get_node_status()
-        if status is None:
+        if self._node_status is None:
             self.send_error(code=500, message='node_status is unavailable')
         else:
-            status.get_node_state()
-            code = status.get_state_detail('code')
-            message = status.get_state_detail('message')
+            self._node_status.get_node_state()
+            code = self._node_status.get_state_detail('code')
+            message = self._node_status.get_state_detail('message')
             self.send_response(code, message)
 
     def do_HEAD(self):

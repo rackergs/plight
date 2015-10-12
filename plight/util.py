@@ -25,8 +25,7 @@ import plight.config as plconfig
 PID = PIDLockFile(plconfig.PID_FILE)
 
 
-def start_server(config):
-    os.umask(0o022)
+def start_server(config, node):
     weblogger = logging.getLogger('plight_httpd')
     weblogger.setLevel(config['web_log_level'])
     if weblogger.handlers == []:
@@ -73,6 +72,7 @@ def start_server(config):
             http = server_class((config['host'],
                                  config['port']),
                                 plight.StatusHTTPRequestHandler)
+            http.RequestHandlerClass._node_status = node
             http.serve_forever()
         except SystemExit as sysexit:
             log_message("Stopping... " + str(sysexit))
@@ -139,7 +139,7 @@ def run():
         log_message('Changing state to {0}'.format(mode))
         node.set_node_state(mode)
     elif mode == 'start':
-        start_server(config)
+        start_server(config, node)
     elif mode == 'status':
         format_get_current_state(node.state, config['states'][node.state])
     elif mode == 'list-states':
