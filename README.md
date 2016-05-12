@@ -2,7 +2,7 @@
 An application agnostic tool to represent node availability.
 
 ## What is this nonsense?
-In many of our deploment pipelines we had to gather credentials from any number of
+In many of our deployment pipelines we had to gather credentials from any number of
 systems, such as load balancers and monitoring, to disable nodes.  Each system might
 have different requirements for authentication, vary quality of APIs or automation
 libraries, etc. With stricter RBAC requirements we sometime ran into a system that
