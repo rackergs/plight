@@ -55,6 +55,7 @@ def start_server(config, node):
     context = DaemonContext(pidfile=PID,
                             uid=pwd.getpwnam(config['user']).pw_uid,
                             gid=grp.getgrnam(config['group']).gr_gid,
+                            umask=0o022,
                             files_preserve=[
                                 weblogging_handler.stream,
                                 applogging_handler.stream,
