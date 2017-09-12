@@ -118,6 +118,9 @@ fi
 %endif
 
 %changelog
+* Tue Sep 12 2017 Greg Swift <greg.swift@rackspace.com> - 0.1.5-1
+- Improve state handling from CLI to web system
+
 * Sat May 06 2017 Chad Wilson <chad.wilson@rackspace.com> - 0.1.4-1
 - Bump version in spec file and __init__.py
 - Bump to 0.1.4 since 0.1.3 is already tagged in github

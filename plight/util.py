@@ -24,28 +24,31 @@ import plight.config as plconfig
 
 PID = PIDLockFile(plconfig.PID_FILE)
 
-
-def start_server(config, node=None):
+def setup_logging(config):
     weblogger = logging.getLogger('plight_httpd')
     weblogger.setLevel(config['web_log_level'])
     if weblogger.handlers == []:
-        weblogging_handler = RotatingFileHandler(config['web_log_file'],
-                                                 mode='a',
-                                                 maxBytes=config[
-                                                     'web_log_filesize'],
-                                                 backupCount=config[
-                                                     'web_log_rotation_count'])
-        weblogger.addHandler(weblogging_handler)
+        weblog_handler = RotatingFileHandler(config['web_log_file'],
+                                             mode='a',
+                                             maxBytes=config[
+                                                 'web_log_filesize'],
+                                             backupCount=config[
+                                                 'web_log_rotation_count'])
+        weblogger.addHandler(weblog_handler)
 
     applogger = logging.getLogger('plight')
     applogger.setLevel(config['log_level'])
     if applogger.handlers == []:
-        applogging_handler = RotatingFileHandler(
-            config['log_file'],
-            mode='a',
-            maxBytes=config['log_filesize'],
-            backupCount=config['log_rotation_count'])
-        applogger.addHandler(applogging_handler)
+        applog_handler = RotatingFileHandler(config['log_file'],
+                                             mode='a',
+                                             maxBytes=config['log_filesize'],
+                                             backupCount=config[
+                                                 'log_rotation_count'])
+        applogger.addHandler(applog_handler)
+    return (weblogger, weblog_handler, applogger, applog_handler)
+
+def start_server(config, node=None):
+    (weblogger, weblog_handler, applogger, applog_handler) = setup_logging(config)
 
     # if pidfile is locked, do not start another process
     if PID.is_locked():
@@ -57,12 +60,12 @@ def start_server(config, node=None):
                             gid=grp.getgrnam(config['group']).gr_gid,
                             umask=0o022,
                             files_preserve=[
-                                weblogging_handler.stream,
-                                applogging_handler.stream,
+                                node._weblog_handler.stream,
+                                node._applog_handler.stream,
                             ])
 
-    context.stdout = applogging_handler.stream
-    context.stderr = applogging_handler.stream
+    context.stdout = node._applog_handler.stream
+    context.stderr = node._applog_handler.stream
     context.open()
 
     try:
@@ -73,6 +76,8 @@ def start_server(config, node=None):
                                  config['port']),
                                 plight.StatusHTTPRequestHandler)
             http.RequestHandlerClass._node_status = node
+            http.RequestHandlerClass._weblogger = node._weblogger
+            http.RequestHandlerClass._applogger = node._applogger
             http.serve_forever()
         except SystemExit as sysexit:
             log_message("Stopping... " + str(sysexit))
@@ -128,6 +133,8 @@ def cli_fail(commands):
 def run():
     config = plconfig.get_config()
     node = plight.NodeStatus(states=config['states'])
+    (weblogger, weblog_handler, applogger, applog_handler) = setup_logging(config)
+    node._applogger = applogger
 
     try:
         mode = sys.argv[1].lower()
