@@ -25,7 +25,7 @@ import plight.config as plconfig
 PID = PIDLockFile(plconfig.PID_FILE)
 
 
-def start_server(config, node):
+def start_server(config, node=None):
     weblogger = logging.getLogger('plight_httpd')
     weblogger.setLevel(config['web_log_level'])
     if weblogger.handlers == []:
