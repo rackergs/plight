@@ -59,8 +59,7 @@ def start_server(config, node):
                             files_preserve=[
                                 weblogging_handler.stream,
                                 applogging_handler.stream,
-                            ],
-                            umask=0o022,)
+                            ])
 
     context.stdout = applogging_handler.stream
     context.stderr = applogging_handler.stream
