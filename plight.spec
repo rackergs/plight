@@ -4,7 +4,7 @@
 %{!?_unitdir: %define _unitdir /usr/lib/systemd/system}
 
 Name:           plight
-Version:        0.1.4
+Version:        0.1.5
 Release:        1%{?dist}
 Group:          Applications/Systems
 Summary:        Application agnostic tool to represent node availability.
@@ -120,6 +120,7 @@ fi
 %changelog
 * Tue Sep 12 2017 Greg Swift <greg.swift@rackspace.com> - 0.1.5-1
 - Improve state handling from CLI to web system
+- Finally fixed logging
 
 * Sat May 06 2017 Chad Wilson <chad.wilson@rackspace.com> - 0.1.4-1
 - Bump version in spec file and __init__.py
