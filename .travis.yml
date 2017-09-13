@@ -10,6 +10,8 @@ before_install:
   - sudo chown plight:plight /var/lib/plight/
   - sudo mkdir /var/log/plight
   - sudo chown plight:plight /var/log/plight
+  - sudo mkdir /var/run/plight
+  - sudo chown plight:plight /var/run/plight
 # command to install dependencies
 install:
   - sudo make install DESTDIR=/
