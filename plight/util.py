@@ -45,10 +45,10 @@ def setup_logging(config):
                                              backupCount=config[
                                                  'log_rotation_count'])
         applogger.addHandler(applog_handler)
-    return (weblogger, weblog_handler, applogger, applog_handler)
+    return (weblogger, applogger)
 
 def start_server(config, node=None):
-    (weblogger, weblog_handler, applogger, applog_handler) = setup_logging(config)
+    (weblogger, applogger) = setup_logging(config)
 
     # if pidfile is locked, do not start another process
     if PID.is_locked():
@@ -60,12 +60,12 @@ def start_server(config, node=None):
                             gid=grp.getgrnam(config['group']).gr_gid,
                             umask=0o022,
                             files_preserve=[
-                                node._weblog_handler.stream,
-                                node._applog_handler.stream,
+                                weblogger.handlers[0].stream,
+                                applogger.handlers[0].stream,
                             ])
 
-    context.stdout = node._applog_handler.stream
-    context.stderr = node._applog_handler.stream
+    context.stdout = applogger.handlers[0].stream
+    context.stderr = applogger.handlers[0].stream
     context.open()
 
     try:
@@ -76,8 +76,8 @@ def start_server(config, node=None):
                                  config['port']),
                                 plight.StatusHTTPRequestHandler)
             http.RequestHandlerClass._node_status = node
-            http.RequestHandlerClass._weblogger = node._weblogger
-            http.RequestHandlerClass._applogger = node._applogger
+            http.RequestHandlerClass._weblogger = weblogger
+            http.RequestHandlerClass._applogger = applogger
             http.serve_forever()
         except SystemExit as sysexit:
             log_message("Stopping... " + str(sysexit))
@@ -133,7 +133,7 @@ def cli_fail(commands):
 def run():
     config = plconfig.get_config()
     node = plight.NodeStatus(states=config['states'])
-    (weblogger, weblog_handler, applogger, applog_handler) = setup_logging(config)
+    (weblogger, applogger) = setup_logging(config)
     node._applogger = applogger
 
     try:
